@@ -1,11 +1,10 @@
-// Initialize Leaflet map
+
 var map = L.map('map').setView([49.4, 8.7], 13);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
-// Reverse geocode coordinates to get street names
 function reverseGeocode(lat, lon) {
     const apiKey = '6c007673173c497c88eecc1ac1fa0596';
     return fetch(`https://api.opencagedata.com/geocode/v1/json?q=${lat}+${lon}&key=${apiKey}&language=en&pretty=1`)
@@ -24,10 +23,9 @@ function reverseGeocode(lat, lon) {
         });
 }
 
-// Initialize an object to store marker click state
+
 var markerClickState = {};
 
-// Plot markers on the map based on data from CongestionReport.json
 function plotMarkers() {
     fetch('CongestionReport.json')
         .then(response => response.json())
@@ -46,10 +44,8 @@ function plotMarkers() {
                 var firstStreetName = await reverseGeocode(location[0], location[1]);
                 marker.bindPopup(sensor + " on " + firstStreetName);
 
-                // Initialize flag for each marker
                 markerClickState[sensor] = false;
 
-                // Add click event listener to the marker
                 marker.on('click', function() {
                     if (!markerClickState[sensor]) {
                         // If circle is not displayed, plot circles for this sensor
@@ -72,8 +68,6 @@ function plotMarkers() {
         });
 }
 
-
-// Plot circles on the map to represent congestion status for a specific sensor
 function plotCirclesForSensor(sensorData) {
     map.eachLayer(layer => {
         if (layer instanceof L.Circle) {
@@ -104,7 +98,6 @@ function plotCirclesForSensor(sensorData) {
     });
 }
 
-// Plot circles on the map to represent congestion status for all sensors
 function plotCircles() {
     fetch('CongestionReport.json')
         .then(response => response.json())
@@ -146,7 +139,6 @@ function plotCircles() {
         });
 }
 
-// Reset the map to its initial state
 function resetMap() {
     map.eachLayer(layer => {
         if (layer instanceof L.Circle) {
