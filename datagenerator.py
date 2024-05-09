@@ -1,6 +1,6 @@
 import datetime
 import random
-import json
+from pymongo import MongoClient
 
 def generate_random_timestamp(start_time, end_time):
     delta = end_time - start_time
@@ -11,16 +11,14 @@ def generate_data(num_points):
     data = []
     current_time = datetime.datetime.now()
     for i in range(num_points):
-        if random.choice([True, False]):  # randomly choose whether to generate past or current timestamp
-            # Generate timestamp within the last 10 days
+        if random.choice([True, False]): 
             timestamp = generate_random_timestamp(current_time - datetime.timedelta(days=50), current_time)
         else:
-            # Generate timestamp within the current time
             timestamp = generate_random_timestamp(current_time - datetime.timedelta(days=10), current_time)
-        speed = int(random.uniform(0, 85) * 1.60934)  # Generating random speed between 0 and 100 mph converted to kph
-        direction = random.randint(0, 360)  # Generating random direction in degrees
+        speed = int(random.uniform(0, 85) * 1.60934)  
+        direction = random.randint(0, 360)
         data_point = {
-            "timestamp": timestamp.strftime('%Y-%m-%d %H:%M:%S'),  # Using string format for timestamp
+            "timestamp": timestamp.strftime('%Y-%m-%d %H:%M:%S'), 
             "speed_kph": speed,
             "direction_degrees": direction
         }
@@ -28,6 +26,13 @@ def generate_data(num_points):
     return data
 
 if __name__ == "__main__":
-    data = generate_data(2000)
-    with open("sensor_data.json", "w") as json_file:
-        json.dump(data, json_file, indent=4)
+  
+    data = generate_data(1000)
+    client = MongoClient('mongodb://localhost:27017/')
+    db = client['smartcity']
+    db.drop_collection('sensor_data')
+    collection = db['sensor_data']
+
+    collection.insert_many(data)
+
+    print("Data has been inserted into MongoDB collection 'sensor_data'.")
