@@ -8,7 +8,7 @@
     padding: 0;
   }
 
-/* Style for buttons */
+
 button {
     background-color: #447444;
     border: none;
@@ -26,13 +26,13 @@ button {
     outline: none;
 }
 
-/* Change button background color on hover */
+
 button:hover {
     background-color: #3b553b; 
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); 
 }
 
-/* Additional style for reset button */
+
 #reset-button {
     background-color: #f44336;
     color: white;
@@ -41,7 +41,6 @@ button:hover {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
 }
 
-/* Change reset button background color on hover */
 #reset-button:hover {
     background-color: #d32f2f; 
     border-color: #d32f2f; 
