@@ -1,8 +1,8 @@
 const express = require('express');
 const app = express();
 const path = require('path');
+const { MongoClient } = require('mongodb');
 
-// Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname)));
 
 // Start the server
@@ -12,4 +12,24 @@ app.listen(PORT, () => {
 });
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'sensors.html'));
+});
+
+
+app.get('/cr', (req, res) => {
+    const client = new MongoClient('mongodb://localhost:27017');
+    try {
+        client.connect().then(() => {  
+            const db = client.db('smartcity');
+            const crCollection = db.collection('CongestionReports');
+            crCollection.find({}).toArray()
+                .then((data)=>{ 
+                    delete data[0]._id
+                    res.send(data[0])})
+        }
+        ) 
+    }
+    catch(err){
+        console.err(err);
+    }
+    
 });

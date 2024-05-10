@@ -1,3 +1,4 @@
+// Initialize the map
 
 var map = L.map('map').setView([49.4, 8.7], 13);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -5,6 +6,10 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
+// Object to keep track of marker click state
+var markerClickState = {};
+
+// Function to reverse geocode coordinates
 function reverseGeocode(lat, lon) {
     const apiKey = '6c007673173c497c88eecc1ac1fa0596';
     return fetch(`https://api.opencagedata.com/geocode/v1/json?q=${lat}+${lon}&key=${apiKey}&language=en&pretty=1`)
@@ -22,12 +27,20 @@ function reverseGeocode(lat, lon) {
             return "Street";
         });
 }
-
-
-var markerClickState = {};
-
-function plotMarkers() {
+function plotMarkersTest() {
     fetch('CongestionReport.json')
+        .then(response => response.json())
+        .then(data => console.log(data))
+}
+function plotMarkersTest2() {
+    fetch('/cr')
+        .then(response => response.json())
+        .then(data => console.log(data))
+}
+
+// Function to plot markers on the map
+function plotMarkers() {
+    fetch('/cr')
         .then(response => response.json())
         .then(data => {
             map.eachLayer(layer => {
@@ -68,38 +81,9 @@ function plotMarkers() {
         });
 }
 
-function plotCirclesForSensor(sensorData) {
-    map.eachLayer(layer => {
-        if (layer instanceof L.Circle) {
-            map.removeLayer(layer);
-        }
-    });
-
-    var location = sensorData.location;
-    var circleColor = sensorData.isCongested ? 'red' : 'green';
-    var circle = L.circle([location[0], location[1]], {
-        color: 'transparent',
-        fillColor: circleColor,
-        fillOpacity: 0.5,
-        radius: 125
-    }).addTo(map);
-    circle.bindPopup(sensorData.isCongested ? "Congested" : "Not Congested");
-
-    map.on('zoomend', () => {
-        const zoom = map.getZoom();
-        const maxRadius = 5000;
-        const minRadius = 125;
-        const minZoom = 15;
-        const maxZoom = 20;
-
-        const adjustedRadius = circle.options.radius * Math.pow(2, minZoom - zoom);
-
-        circle.setRadius(Math.max(minRadius, Math.min(maxRadius, adjustedRadius)));
-    });
-}
-
+// Function to plot circles on the map
 function plotCircles() {
-    fetch('CongestionReport.json')
+    fetch('/cr')
         .then(response => response.json())
         .then(data => {
             map.eachLayer(layer => {
@@ -139,6 +123,39 @@ function plotCircles() {
         });
 }
 
+// Function to plot circles on the map for sensor data
+function plotCirclesForSensor(sensorData) {
+    map.eachLayer(layer => {
+        if (layer instanceof L.Circle) {
+            map.removeLayer(layer);
+        }
+    });
+
+    var location = sensorData.location;
+    var circleColor = sensorData.isCongested ? 'red' : 'green';
+    var circle = L.circle([location[0], location[1]], {
+        color: 'transparent',
+        fillColor: circleColor,
+        fillOpacity: 0.5,
+        radius: 125
+    }).addTo(map);
+    circle.bindPopup(sensorData.isCongested ? "Congested" : "Not Congested");
+
+    map.on('zoomend', () => {
+        const zoom = map.getZoom();
+        const maxRadius = 5000;
+        const minRadius = 125;
+        const minZoom = 15;
+        const maxZoom = 20;
+
+        const adjustedRadius = circle.options.radius * Math.pow(2, minZoom - zoom);
+
+        circle.setRadius(Math.max(minRadius, Math.min(maxRadius, adjustedRadius)));
+    });
+}
+
+
+// Function to reset the map
 function resetMap() {
     map.eachLayer(layer => {
         if (layer instanceof L.Circle) {
@@ -147,3 +164,5 @@ function resetMap() {
     });
     map.setView([49.4, 8.7], 13);
 }
+
+
